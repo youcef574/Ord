@@ -672,13 +672,14 @@ class OrdersManager {
         });
     }
     
-    // Override the existing method
     bindStatusDropdowns() {
-        // Enhanced dropdown handlers
+        // Clear existing listeners to prevent duplicates
         document.querySelectorAll('.status-dropdown').forEach(dropdown => {
             const display = dropdown.querySelector('.status-display');
             const menu = dropdown.querySelector('.status-dropdown-menu');
             const orderId = dropdown.getAttribute('data-order-id');
+            
+            if (!display || !menu) return;
             
             // Toggle dropdown
             display.addEventListener('click', (e) => {
@@ -695,16 +696,14 @@ class OrdersManager {
             });
             
             // Handle item selection
-            if (menu) {
-                menu.addEventListener('click', (e) => {
-                    const item = e.target.closest('.status-dropdown-item');
-                    if (item) {
-                        const newStatus = item.getAttribute('data-status');
-                        this.updateOrderStatusFromTable(orderId, newStatus);
-                        dropdown.classList.remove('active');
-                    }
-                });
-            }
+            menu.addEventListener('click', (e) => {
+                const item = e.target.closest('.status-dropdown-item');
+                if (item) {
+                    const newStatus = item.getAttribute('data-status');
+                    this.updateOrderStatusFromTable(orderId, newStatus);
+                    dropdown.classList.remove('active');
+                }
+            });
         });
         
         // Close dropdowns when clicking outside
@@ -724,77 +723,6 @@ class OrdersManager {
                 });
             }
         });
-    }
-    
-    // Remove the old method that was causing conflicts
-    bindStatusDropdowns() {
-        // Enhanced dropdown handlers
-        document.querySelectorAll('.status-dropdown').forEach(dropdown => {
-            const display = dropdown.querySelector('.status-display');
-            const menu = dropdown.querySelector('.status-dropdown-menu');
-            const orderId = dropdown.getAttribute('data-order-id');
-            
-            // Remove existing listeners to prevent duplicates
-            const newDisplay = display.cloneNode(true);
-            display.parentNode.replaceChild(newDisplay, display);
-            
-            // Toggle dropdown
-            newDisplay.addEventListener('click', (e) => {
-                e.stopPropagation();
-                
-                // Close other dropdowns
-                document.querySelectorAll('.status-dropdown.active').forEach(other => {
-                    if (other !== dropdown) {
-                        other.classList.remove('active');
-                    }
-                });
-                
-                dropdown.classList.toggle('active');
-            });
-            
-            // Handle item selection
-            if (menu) {
-                menu.addEventListener('click', (e) => {
-                    const item = e.target.closest('.status-dropdown-item');
-                    if (item) {
-                        const newStatus = item.getAttribute('data-status');
-                        this.updateOrderStatusFromTable(orderId, newStatus);
-                        dropdown.classList.remove('active');
-                    }
-                });
-            }
-        });
-        
-        // Close dropdowns when clicking outside (only add once)
-        if (!document.body.hasAttribute('data-dropdown-listeners')) {
-            document.body.setAttribute('data-dropdown-listeners', 'true');
-            
-            document.addEventListener('click', (e) => {
-                if (!e.target.closest('.status-dropdown')) {
-                    document.querySelectorAll('.status-dropdown.active').forEach(dropdown => {
-                        dropdown.classList.remove('active');
-                    });
-                }
-            });
-            
-            // Close dropdowns on escape key
-            document.addEventListener('keydown', (e) => {
-                if (e.key === 'Escape') {
-                    document.querySelectorAll('.status-dropdown.active').forEach(dropdown => {
-                        dropdown.classList.remove('active');
-                    });
-                }
-            });
-        }
-    }
-    
-    init() {
-        this.renderOrders();
-        this.updateStats();
-        this.bindEvents();
-        this.initModal();
-        this.initWhatsAppModal();
-        this.updateStatusFilter(); // Add this line
     }
     
     renderStatusBadge(status) {
